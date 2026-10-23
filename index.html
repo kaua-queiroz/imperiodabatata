@@ -211,6 +211,9 @@ button,input,textarea{font:inherit;color:inherit}
 .ticket .meta b{font-family:var(--label);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:14px;margin-right:6px}
 
 .foot{padding-block:4px 20px;text-align:center}
+.big-cta{padding-block:4px 10px}
+.btn.big{min-height:64px;font-size:26px;border-radius:18px;box-shadow:0 8px 20px rgba(179,22,28,.28)}
+.btn.big span{font-size:22px;opacity:.9;margin-left:4px}
 
 /* equipe */
 .login{padding-block:30px 40px;max-width:360px;margin:0 auto}
@@ -358,6 +361,7 @@ button,input,textarea{font:inherit;color:inherit}
         </div>
       </section>
     </form>
+    <div class="big-cta"><button class="btn full big" type="button" id="btn-reservar2">Reservar <span id="cta-total"></span></button></div>
     <div class="foot"><button class="linkbtn" type="button" id="btn-admin">Área da equipe</button></div>
     <div class="spacer"></div>
   </div>
@@ -481,7 +485,7 @@ button,input,textarea{font:inherit;color:inherit}
   /* Supabase (para publicar fora do Claude, ex.: Vercel). Deixe vazio para usar o banco do Claude. */
   var SUPABASE_URL = 'https://wrzqffprbmmcimtaakck.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_95WvxZKHFXAAl6QPjfGi5A_XPDiwU0K';
-  var PROMO_FIM = new Date('2026-10-23T01:04:00-03:00'); /* fim das reservas promocionais (cupom ONLINE10) */
+  var PROMO_FIM = new Date('2026-10-24T10:00:00-03:00'); /* fim das reservas promocionais (cupom ONLINE10) */
   var PIX_CHAVE = '13991913205';            /* chave Pix (celular), como a equipe passou */
   var PIX_BRCODE_CHAVE = '+5513991913205';  /* mesma chave no formato do Pix copia e cola */
   var PIX_NOME = 'IMPERIO DA BATATA', PIX_CIDADE = 'SANTOS';
@@ -702,6 +706,7 @@ button,input,textarea{font:inherit;color:inherit}
     if (cupom && t.bat) parts.push(t.pct + '% off');
     $('bar-info').textContent = parts.length ? parts.join(' · ') : 'Nenhuma batata ainda';
     $('bar-total').textContent = brl(t.total);
+    $('cta-total').textContent = t.bat ? '· ' + brl(t.total) : '';
     $('bar-old').hidden = !(t.desc > 0);
     $('bar-old').textContent = brl(t.sub);
     $('hero-cup').hidden = !cupom;
@@ -843,10 +848,11 @@ button,input,textarea{font:inherit;color:inherit}
     submit();
   });
 
+  $('btn-reservar2').addEventListener('click', function(){ $('btn-reservar').click(); });
   async function submit(){
     if (sending) return;
     sending = true;
-    var btn = $('btn-reservar'); btn.disabled = true; btn.textContent = 'Reservando…';
+    var btn = $('btn-reservar'); btn.disabled = true; btn.textContent = 'Reservando…'; $('btn-reservar2').disabled = true;
     var t = totals();
     var p = {
       nome: $('nome').value.trim(), papel: papel(), sala: salaTexto(),
@@ -872,7 +878,7 @@ button,input,textarea{font:inherit;color:inherit}
         showErr('Acabou o estoque de ' + (r ? r.nome : 'um refri') + '. Troque o sabor do refri e reserve de novo.');
         $('h-ref').scrollIntoView({behavior:'smooth', block:'center'});
       } else showErr(err && err.code === 'quota_exceeded' ? 'O limite de pedidos guardados foi atingido. Avise a equipe do Império.' : 'Não deu para salvar a reserva. Confira a internet e toque em Reservar de novo.');
-    } finally { sending = false; btn.disabled = false; btn.textContent = 'Reservar'; }
+    } finally { sending = false; btn.disabled = false; btn.textContent = 'Reservar'; $('btn-reservar2').disabled = false; }
   }
 
   function ticketHtml(p){
